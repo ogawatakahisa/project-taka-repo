@@ -52,11 +52,31 @@ const Todo = ({ todo }: TodoProps) => {
                 const editieTodo = await response.json();
                 //SWRのキャッシュを更新する 
                 // キャッシュが新しいdataに変わる＝再レンダリングされる
-                mutate([...todos, editieTodo]); 
-                setEditedTitle("")
+                const updatedTodos = todos.filter((todo: TodoType) =>
+                    todo.id === editieTodo.id ? editieTodo : todo);
+                // mutate([...todos, editieTodo]); 
+                mutate(updatedTodos); 
+                // setEditedTitle("")
             }
         }
     }
+
+    const handleDelete = async(id: number) => {
+        const response = await fetch(`http://localhost:8080/deleteTodo/${todo.id}`, {
+            method: "DELETE",
+            // deleteする時にはheaderもbodyも必要ない
+            headers: { "Content-Type": "application/json" },
+        });
+
+        if (response.ok) {
+            const deletedTodo = await response.json();
+            const updatedTodos = todos.filter((todo: TodoType) => todo.id !== id);
+            mutate(updatedTodos);
+            // mutate([...todos, deletedTodo]);
+            // setEditedTitle("")
+        }
+    }
+    
 
 
 
@@ -89,12 +109,13 @@ const Todo = ({ todo }: TodoProps) => {
 
           {/* 編集・削除ボタン */}
             <div className="flex items-center space-x-2">
-                <button onClick={handleEdit}
+            <button onClick={handleEdit}
                 className="duration-150 bg-green-600 hover:bg-green-700 text-white font-medium py-1 px-2 rounded">
                 
                 {isEditing ? "Save": "✒"}            
             </button>
-            <button className="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-2 rounded">
+            <button onClick={() => handleDelete(todo.id)}
+                    className="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-2 rounded">
                 ✖
             </button>
             </div>
