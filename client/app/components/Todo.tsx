@@ -1,17 +1,18 @@
 import Rafce, { useState } from "react";
 import { TodoType } from "../types"
 import useSWR from "swr";
+import { useTodos } from "../hooks/useTodos";
 
 type TodoProps = {
     todo: TodoType;
 }
 
-async function fetcher(key: string) {
-    // .then=非同期処理の結果を受け取る
-    // 指定したエンドポイ　ントから.thenで値を受け取り
-    // json形式で返す
-    return fetch(key).then((res) => res.json());
-}
+// async function fetcher(key: string) {
+//     // .then=非同期処理の結果を受け取る
+//     // 指定したエンドポイ　ントから.thenで値を受け取り
+//     // json形式で返す
+//     return fetch(key).then((res) => res.json());
+// }
 
 const Todo = ({ todo }: TodoProps) => {
     // ISEditingにstateの状態が入る
@@ -21,14 +22,17 @@ const Todo = ({ todo }: TodoProps) => {
     // もともと入っていた値editedTitleに新しく入力されたsetEditedTitleを入れる
     const [editedTitle, setEditedTitle] = useState<string>(todo.title);
 
-    // useSWR＝APIのデータ取得（フェッチ）を簡単にできる
-    // &関数コンポーネントでstateを管理できる
-    const { data, isLoading, error, mutate } = useSWR(
-        "http://localhost:8080/allTodos",
-        // 引数ないように見えるけど、useSWRの仕組みで自動でつけてくれてる
-        // この時の引数はuseSWRで呼び出したAPIのurlが渡される
-        fetcher
-    );
+    // カスタム関数を準備
+    const { todos, isLoading, error, mutate} = useTodos();
+
+    // // useSWR＝APIのデータ取得（フェッチ）を簡単にできる
+    // // &関数コンポーネントでstateを管理できる
+    // const { data, isLoading, error, mutate } = useSWR(
+    //     "http://localhost:8080/allTodos",
+    //     // 引数ないように見えるけど、useSWRの仕組みで自動でつけてくれてる
+    //     // この時の引数はuseSWRで呼び出したAPIのurlが渡される
+    //     fetcher
+    // );
 
     const handleEdit = async() => {
         // ONとOFを切り替える
@@ -48,7 +52,7 @@ const Todo = ({ todo }: TodoProps) => {
                 const editieTodo = await response.json();
                 //SWRのキャッシュを更新する 
                 // キャッシュが新しいdataに変わる＝再レンダリングされる
-                mutate([...data, editieTodo]); 
+                mutate([...todos, editieTodo]); 
                 setEditedTitle("")
             }
         }

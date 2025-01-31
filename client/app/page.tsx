@@ -8,14 +8,8 @@ import { useEffect, useRef } from 'react';
 import { todo } from "node:test";
 import { TodoType } from "./types";
 import { useRouter } from "next/navigation";
+import { useTodos } from "./hooks/useTodos";
 
-// useSWRフックから呼び出される
-async function fetcher(key: string) {
-  // .then=非同期処理の結果を受け取る
-  // 指定したエンドポイ　ントから.thenで値を受け取り
-  // json形式で返す
-  return fetch(key).then((res) => res.json());
-}
 
 // コンポーネント（UIを一部の独立した再利用可能な部品としてカプセル化したもの）の定義
 // この中でuseSWRを使用しているため、これがマウントされるとfetcherが実行される
@@ -24,13 +18,9 @@ async function fetcher(key: string) {
 export default function Home() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const router = useRouter();
-  
-  // const allTodos = await fetch("API", {cache: "force-cache"}); //SSR
-  // keyには、エンドポンとを指定。server側はポート＝8080
-  const { data, isLoading, error, mutate } = useSWR(
-    "http://localhost:8080/allTodos",
-    fetcher
-  );
+
+  // カスタム関数を準備
+  const { todos, isLoading, error, mutate} = useTodos();
 
   // console.log("取得後情報")
   // console.log(data)
@@ -56,7 +46,7 @@ export default function Home() {
     router.refresh();
     if (response.ok) {
       const newTodo = await response.json();
-      mutate([...data, newTodo]);
+      mutate([...todos, newTodo]);
       inputRef.current!.value = "";
     }
 
@@ -89,7 +79,7 @@ export default function Home() {
 
       {/* タスクリスト */}
       <ul className="divide-y divide-gray-200 px-4">
-        {data?.map((todo: TodoType) => (
+        {todos?.map((todo: TodoType) => (
           // todoは配列で、dataを意味する
           // データ取得apiからreturnさるときのdata
 
