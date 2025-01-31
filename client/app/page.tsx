@@ -9,6 +9,7 @@ import { todo } from "node:test";
 import { TodoType } from "./types";
 import { useRouter } from "next/navigation";
 import { useTodos } from "./hooks/useTodos";
+import { API_URL } from "./constants/url";
 
 
 // コンポーネント（UIを一部の独立した再利用可能な部品としてカプセル化したもの）の定義
@@ -34,7 +35,7 @@ export default function Home() {
     //   console.log(inputRef.current?.value)
     // }
 
-    const response = await fetch(`http://localhost:8080/createTodo`, {
+    const response = await fetch(`${API_URL}/createTodo`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

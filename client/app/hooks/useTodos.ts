@@ -2,6 +2,7 @@
 // 要はロジックを分解して再利用性を高めたってこと
 
 import useSWR from "swr";
+import { API_URL } from "../constants/url";
 
 // APIから取得する
 async function fetcher(key: string) {
@@ -15,7 +16,7 @@ export const useTodos = () => {
     // useSWR＝APIのデータ取得（フェッチ）を簡単にできる
     // &関数コンポーネントでstateを管理できる
     const { data, isLoading, error, mutate } = useSWR(
-        "http://localhost:8080/allTodos",
+        `${API_URL}/allTodos`,
         // 引数ないように見えるけど、useSWRの仕組みで自動でつけてくれてる
         // この時の引数はuseSWRで呼び出したAPIのurlが渡される
         fetcher
